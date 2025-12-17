@@ -153,9 +153,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # S3 Configuration (Backblaze is S3 Compatible)
-AWS_S3_ENDPOINT_URL = 'https://s3.us-east-005.backblazeb2.com' 
-AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', None)
-AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY', None)
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY')
 AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering'
 
 
