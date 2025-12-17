@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'collection',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -122,5 +123,33 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 import os
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# --- Backblaze B2 Configuration ---
+# Note: You need to set these variables on Render!
+
+"""
+keyID: 0054a5a84e4aed00000000001
+keyName: DjangoAppKey
+applicationKey: K005VfMd+iLWGOer9UPSnzmp70CZoxc
+"""
+
+# S3 Configuration (Backblaze is S3 Compatible)
+AWS_S3_ENDPOINT_URL = 'https://s3.us-east-005.backblazeb2.com' 
+AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY')
+AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering' # Your bucket name
+
+AWS_LOCATION = 'media'
+
+# This ensures Django uses B2 for all file uploads (Media)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# OPTIONAL: Set media folder structure within the bucket
+MEDIAFILES_LOCATION = 'media'
+MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_ENDPOINT_URL.split('://')[1]}/"
+
+# Ensure your STATICFILES_STORAGE remains set to WhiteNoise:
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
