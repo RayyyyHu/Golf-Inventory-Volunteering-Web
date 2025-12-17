@@ -147,22 +147,29 @@ keyName: DjangoAppKey
 applicationKey: K005VfMd+iLWGOer9UPSnzmp70CZoxc
 """
 
+# Default to local storage for safety/local development
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # S3 Configuration (Backblaze is S3 Compatible)
 AWS_S3_ENDPOINT_URL = 'https://s3.us-east-005.backblazeb2.com' 
 AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', None)
 AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY', None)
-AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering' # Your bucket name
+AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering'
 
-AWS_DEFAULT_ACL = 'public-read'
 
-# AWS_LOCATION = 'media'
+# CRITICAL LOGIC: Overwrite default storage ONLY if keys are present (i.e., on Render)
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_S3_ENDPOINT_URL:
+    
+    # S3 Configuration
+    AWS_DEFAULT_ACL = 'public-read'
 
-# This ensures Django uses B2 for all file uploads (Media)
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-# OPTIONAL: Set media folder structure within the bucket
-# MEDIAFILES_LOCATION = 'media'
-MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
-
-# Ensure your STATICFILES_STORAGE remains set to WhiteNoise:
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Ensure files are NOT saved to local disk on Render
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
+    
+    # URL structure using model's upload_to='golf_media/'
+    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/' 
+    
+    # Remove local media settings since we are using B2
+    MEDIA_ROOT = ''
