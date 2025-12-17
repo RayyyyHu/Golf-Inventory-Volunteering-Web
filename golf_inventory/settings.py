@@ -84,6 +84,7 @@ DATABASES = {
 
 # Use this to update the database configuration for production environment
 import dj_database_url
+import os
 
 # Check if the DATABASE_URL environment variable exists (which it will on Render)
 if os.environ.get('DATABASE_URL'):
