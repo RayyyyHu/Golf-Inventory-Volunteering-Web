@@ -149,8 +149,8 @@ applicationKey: K005VfMd+iLWGOer9UPSnzmp70CZoxc
 
 # S3 Configuration (Backblaze is S3 Compatible)
 AWS_S3_ENDPOINT_URL = 'https://s3.us-east-005.backblazeb2.com' 
-AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY')
+AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', None)
+AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY', None)
 AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering' # Your bucket name
 
 AWS_DEFAULT_ACL = 'public-read'
