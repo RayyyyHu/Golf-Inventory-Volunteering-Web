@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf Collection Inventory Management</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Reset & Typography */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #ffffff;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #4b5563;
+        }
+
+        .admin-link {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.9rem;
+            text-decoration: none;
+            color: #2563eb;
+        }
+
+        .admin-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Search Area */
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            padding: 8px 10px;
+            font-size: 0.95rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .search-btn {
+            padding: 8px 14px;
+            font-size: 0.95rem;
+            border-radius: 4px;
+            border: 1px solid #2563eb;
+            background-color: #2563eb;
+            color: #ffffff;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Table */
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        .inventory-table th {
+            font-weight: 500;
+            background-color: #f9fafb;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: #374151;
+        }
+
+        .table-image-cell img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        /* =========================
+           Mobile Refinement
+           ========================= */
+        @media (max-width: 768px) {
+
+            .container {
+                padding: 16px;
+            }
+
+            /* Header stacks cleanly */
+            .header {
+                padding-bottom: 12px;
+            }
+
+            .admin-link {
+                position: static;
+                display: inline-block;
+                margin-top: 6px;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            /* Search form becomes vertical */
+            .search-area {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .search-input,
+            .search-btn {
+                width: 100%;
+            }
+
+            /* Table adjustments */
+            .inventory-table th,
+            .inventory-table td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+
+            .inventory-table th {
+                font-size: 0.75rem;
+            }
+
+            .table-image-cell img {
+                width: 132px;
+                height: 132px;
+            }
+
+            /* Improve long text wrapping */
+            td {
+                word-break: break-word;
+            }
+        }
+        /* =========================
+           Image Modal/Lightbox Styles
+           ========================= */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            padding-top: 50px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.9); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            max-height: 90vh; /* Limit height to viewport height */
+            object-fit: contain;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="header">
+            <h1>Golf Collection Inventory</h1>
+            <a href="{% url 'admin:index' %}" class="admin-link" target="_blank">Manage Inventory &rarr;</a>
+            <p>List and search all items in the collection.</p>
+        </header>
+
+        <form method="GET" action="{% url 'home' %}" class="search-area">
+            <select name="category" class="search-input" style="flex-grow: 0;">
+                <option value="ALL">All Categories</option>
+
+                {% for key, display_name in category_choices %}
+                    <option value="{{ key }}"
+                        {% if selected_category == key %} selected {% endif %}>
+                        {{ display_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="q"
+                   placeholder="Search by description (e.g., 'signed poster')"
+                   value="{{ query|default_if_none:'' }}"
+                   class="search-input">
+
+            <button type="submit" class="search-btn">Filter & Search</button>
+
+            <a href="{% url 'home' %}" class="search-btn"
+               style="background-color: #6b7280; border-color: #6b7280;">
+                Reset
+            </a>
+        </form>
+
+        {% if query or selected_category and selected_category != 'ALL' %}
+            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #4b5563;">
+                Showing results.
+                {% if query %}
+                    Filtering by description: "<strong>{{ query }}</strong>".
+                {% endif %}
+                {% if selected_category and selected_category != 'ALL' %}
+                    Filtering by category: <strong>{{ selected_category }}</strong>.
+                {% endif %}
+            </p>
+        {% endif %}
+
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td class="table-image-cell">
+                            {% if item.image %}
+                                <a href="javascript:void(0)" onclick="openModal('{{ item.image.url }}')">
+                                    <img src="{{ item.image.url }}"
+                                            alt="{{ item.description|truncatewords:5 }}">
+                                </a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ item.get_category_display }}</strong>
+                        </td>
+                        <td>
+                            {{ item.description|truncatewords:40 }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            {% if query %}
+                                No items found matching "<strong>{{ query }}</strong>".
+                            {% else %}
+                                No items have been added to the inventory yet.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close" title="Close Modal">&times;</span>
+
+    <div class="modal-content">
+        <img id="fullImage" src="" alt="Full size inventory item" style="margin: auto;">
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById("imageModal");
+    const fullImage = document.getElementById("fullImage");
+
+    // Function to show the modal with the clicked image
+    function openModal(imageSource) {
+        fullImage.src = imageSource;
+        modal.style.display = "block";
+        
+        // Prevent clicking the image from closing the modal immediately
+        fullImage.onclick = function(event) {
+            event.stopPropagation();
+        }
+    }
+
+    // Function to hide the modal
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    // Close when clicking the "X" button
+    const closeButton = document.querySelector('.close');
+    closeButton.onclick = closeModal;
+
+    // Close when pressing the ESC key
+    document.onkeydown = function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    };
+</script>
+</body>
+</html>
