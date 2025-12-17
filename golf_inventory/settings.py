@@ -155,14 +155,14 @@ AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering' # Your bucket name
 
 AWS_DEFAULT_ACL = 'public-read'
 
-AWS_LOCATION = 'media'
+# AWS_LOCATION = 'media'
 
 # This ensures Django uses B2 for all file uploads (Media)
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # OPTIONAL: Set media folder structure within the bucket
-MEDIAFILES_LOCATION = 'media'
-MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
+# MEDIAFILES_LOCATION = 'media'
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}'
 
 # Ensure your STATICFILES_STORAGE remains set to WhiteNoise:
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
