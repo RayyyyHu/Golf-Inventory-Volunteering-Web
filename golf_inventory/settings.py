@@ -153,22 +153,23 @@ AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY')
 AWS_STORAGE_BUCKET_NAME = 'golf-inventory-volunteering'
 
-# 2. DEFAULT STORAGE: Local fallback
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Modern Django 5.0+ Storage Configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "default_acl": "public-read",
+            "file_overwrite": False,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-# 3. CRITICAL LOGIC: Overwrite default storage ONLY if ALL keys are present
-if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_S3_ENDPOINT_URL:
-    
-    # B2 Configuration
-    AWS_DEFAULT_ACL = 'public-read'
-    
-    # ENSURE S3 STORAGE IS USED
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
-    
-    # URL structure using model's upload_to='golf_media/'
-    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/' 
-    
-    # Disable local media root when using B2
-    MEDIA_ROOT = ''
+# Construct the URL
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
